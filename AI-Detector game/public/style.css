@@ -1,0 +1,43 @@
+body {
+    margin: 0;
+    min-height: 100vh;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    font-family: Arial, sans-serif;
+    background-color: #f1f1f1;
+    color: #222;
+}
+
+.container {
+    text-align: center;
+}
+
+#visual {
+    width: 180px;
+    height: 180px;
+
+    margin: 30px auto;
+
+    background-color: #a8a8a8;
+    border-radius: 20px;
+
+    transition:
+        background-color 0.3s,
+        transform 0.3s;
+}
+
+#visual.active {
+    background-color: #65c98b;
+    transform: rotate(10deg) scale(1.1);
+}
+
+#status {
+    font-size: 18px;
+}
+
+#counter {
+    font-size: 16px;
+}

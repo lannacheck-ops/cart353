@@ -30,9 +30,15 @@ const parser = port.pipe(
 parser.on("data", (data) => {
     console.log("Arduino:", data);
 
-    if (data.trim() === "BUTTON_PRESSED") {
-        // Send the event to connected web browsers
-        io.emit("buttonPressed");
+    // if (data.trim() === "BUTTON_PRESSED") {
+    //     // Send the event to connected web browsers
+    //     io.emit("buttonPressed");
+    // }
+
+    const value = Number(data.trim());
+
+    if (Number.isFinite(value) && value >= 0 && value <= 1023) {
+        io.emit("sensorValue", value);
     }
 });
 

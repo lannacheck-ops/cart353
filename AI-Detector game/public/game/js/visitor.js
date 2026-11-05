@@ -6,6 +6,8 @@ export class Visitor {
         this.name = name;
         this.image = image;
 
+        this.initialX = x;
+        this.initialY = y;
         this.sprite = scene.add.image(x, y, image);
 
         this.sprite.setScale(0.45);
@@ -14,10 +16,30 @@ export class Visitor {
 
         this.isActive = false;
         this.ready = false;
-        this.aiDiagnosis = false;
+        this.type = null;
+        this.isAi = false;
         // STORE TWEEN REFERENCES
         this.bobbingTween = null;
         this.movementTween = null;
+
+        // Store this character's diagnoses
+        this.userDiagnoses = [
+            {
+                highTemperature: null,
+                lowTemperature: null,
+                normalTemperature: null
+            },
+            {
+                easyMemory: null,
+                mediumMemory: null,
+                hardMemory: null
+            },
+            {
+                hardShake: null,
+                mediumShake: null,
+                lightShake: null
+            }
+        ];
     }
     //
     activate() {

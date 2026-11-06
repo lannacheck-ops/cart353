@@ -16,7 +16,7 @@ export class Visitor {
 
         this.isActive = false;
         this.ready = false;
-        this.type = null;
+        this.AiDiagnosis = null;
         this.isAi = false;
         // STORE TWEEN REFERENCES
         this.bobbingTween = null;

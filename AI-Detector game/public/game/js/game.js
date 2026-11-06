@@ -65,6 +65,14 @@ function preload() {
     this.load.image("neutral", "./assets/diagnosisIcons/temperature/neutral.png");
     this.load.image("verbalResponse", "./assets/diagnosisIcons/temperature/verbal.png");
     this.load.image("sensoryLoss", "./assets/diagnosisIcons/temperature/sensory_loss.png");
+
+    // MEMORY
+    this.load.image("fullAccuracy", "./assets/diagnosisIcons/memory/fullAccuracy.png");
+    this.load.image("memoryLoss", "./assets/diagnosisIcons/memory/memoryLoss.png");
+    this.load.image("mediumAccuracy", "./assets/diagnosisIcons/memory/mediumAccuracy.png");
+    this.load.image("lowAccuracy", "./assets/diagnosisIcons/memory/lowAccuracy.png");
+    this.load.image("genius", "./assets/diagnosisIcons/memory/genius.png");
+    this.load.image("sensoryLoss", "./assets/diagnosisIcons/memory/sensory_loss.png");
 }
 /**
  * VISITORS VARIABLES
@@ -192,9 +200,9 @@ const diagnosisOptions = [
                         image: "fullAccuracy"
                     },
                     {
-                        id: "noMemory",
-                        label: "No Memory",
-                        image: "noMemory"
+                        id: "memoryLoss",
+                        label: "Memory Loss",
+                        image: "memoryLoss"
                     }
                 ]
             },
@@ -238,9 +246,9 @@ const diagnosisOptions = [
                         image: "mediumAccuracy"
                     },
                     {
-                        id: "fullAccuracy",
+                        id: "genius",
                         label: "100% Accuracy",
-                        image: "fullAccuracy"
+                        image: "genius"
                     }
                 ]
             }
@@ -330,6 +338,7 @@ let diagnosisMenu;
 let menuOpen = false;
 let decideButton;
 let decisionMenu;
+let decideMenuOpen = false;
 let isTransitioning = false;
 // console.log(diagnosisOptions[0]['temperature'])
 
@@ -578,13 +587,14 @@ function createDecisionMenu() {
 
     humanButton.on("pointerdown", () => {
 
-        decideVisitorType.call(this, "human");
+        decideVisitorType.call(this, false);
+
 
     });
 
     aiButton.on("pointerdown", () => {
 
-        decideVisitorType.call(this, "ai");
+        decideVisitorType.call(this, true);
 
     });
 
@@ -607,95 +617,37 @@ function createDecisionMenu() {
 function openDecisionMenu() {
 
     if (isTransitioning) return;
+    decideMenuOpen = !decideMenuOpen;
+    if (decideMenuOpen) {
+        decisionMenu.setVisible(decideMenuOpen);
 
-    decisionMenu.setVisible(true);
+        this.tweens.add({
+            targets: decisionMenu,
+            alpha: 1,
+            duration: 200,
+            ease: "Sine.easeOut"
+        });
+    }
+    else {
+        decisionMenu.setVisible(decideMenuOpen);
 
-    this.tweens.add({
-        targets: decisionMenu,
-        alpha: 1,
-        duration: 200,
-        ease: "Sine.easeOut"
-    });
+        this.tweens.add({
+            targets: decisionMenu,
+            alpha: 0,
+            duration: 200,
+            ease: "Sine.easeOut"
+        });
+    }
 
-}
-function createDiagnosisOption(column, option, x, y) {
-
-    // Create a container for the diagnosis option
-    let optionContainer = this.add.container(x, y);
-
-    // Diagnosis image
-    let image = this.add.image(110, 70, option.image);
-
-    image.setDisplaySize(130, 130);
-
-    // Diagnosis label background
-    let labelBackground = this.add.rectangle(
-        110,
-        150,
-        180,
-        35,
-        0x000000
-    );
-
-    // Diagnosis label
-    let label = this.add.text(
-        110,
-        150,
-        option.label,
-        {
-            fontSize: "18px",
-            color: "#ffffff"
-        }
-    ).setOrigin(0.5);
-
-    // Selection border
-    let border = this.add.rectangle(
-        110,
-        70,
-        140,
-        140
-    );
-
-    border.setStrokeStyle(4, 0xffff00);
-    border.setVisible(false);
-
-    diagnosisButtons.push({
-        columnId: column.id,
-        diagnosisId: option.id,
-        border: border
-    });
-
-    // Make the image interactive
-    image.setInteractive({
-        useHandCursor: true
-    });
-
-    image.on("pointerdown", () => {
-
-        selectDiagnosis(column.id, option.id);
-
-    });
-
-    optionContainer.add([
-        image,
-        labelBackground,
-        label,
-        border
-    ]);
-
-    diagnosisMenu.add(optionContainer);
-
-    // Store reference to the border for later updates
-    option.border = border;
 
 }
-function decideVisitorType(type) {
+function decideVisitorType(AiDiagnosis) {
     if (isTransitioning || typeof activeVisitor == 'undefined') return;
-
+    // toggleDiagnosisMenu();
     isTransitioning = true;
-
+    toggleDiagnosisMenu.call(this);
     // Save the character's classification
-    activeVisitor.type = type;
+    activeVisitor.AiDiagnosis = AiDiagnosis;
 
     // Hide the decision menu
     decisionMenu.setVisible(false);
@@ -706,7 +658,7 @@ function decideVisitorType(type) {
     // Determine where the character should move
     let targetX;
 
-    if (type === "ai") {
+    if (AiDiagnosis === true) {
 
         // Return to original position
         targetX = activeVisitor.initialX;
@@ -720,12 +672,13 @@ function decideVisitorType(type) {
     }
 
     // Move the character
-    moveCharacter.call(this, targetX);
+    moveVisitor.call(this, targetX);
 
 
 }
 
-function moveCharacter(targetX) {
+
+function moveVisitor(targetX) {
 
     let visitor = activeVisitor;
 
@@ -768,7 +721,7 @@ function changeactiveVisitor() {
     visitorIndex++;
     console.log(visitorIndex);
     console.log(visitors.indexOf(activeVisitor));
-    // Loop back to the beginning if necessary
+    // Set visitor index to null once the max visitor is reached
     if (visitorIndex >= visitors.length) {
         visitorIndex = null;
     }
@@ -877,6 +830,78 @@ function createDiagnosisColumns() {
 
 }
 
+function createDiagnosisOption(column, option, x, y) {
+
+    // Create a container for the diagnosis option
+    let optionContainer = this.add.container(x, y);
+
+    // Diagnosis image
+    let image = this.add.image(110, 70, option.image);
+
+    image.setDisplaySize(130, 130);
+
+    // Diagnosis label background
+    let labelBackground = this.add.rectangle(
+        110,
+        150,
+        180,
+        35,
+        0x000000
+    );
+
+    // Diagnosis label
+    let label = this.add.text(
+        110,
+        150,
+        option.label,
+        {
+            fontSize: "18px",
+            color: "#ffffff"
+        }
+    ).setOrigin(0.5);
+
+    // Selection border
+    let border = this.add.rectangle(
+        110,
+        70,
+        140,
+        140
+    );
+
+    border.setStrokeStyle(4, 0xffff00);
+    border.setVisible(false);
+
+    diagnosisButtons.push({
+        columnId: column.id,
+        diagnosisId: option.id,
+        border: border
+    });
+
+    // Make the image interactive
+    image.setInteractive({
+        useHandCursor: true
+    });
+
+    image.on("pointerdown", () => {
+
+        selectDiagnosis(column.id, option.id);
+
+    });
+
+    optionContainer.add([
+        image,
+        labelBackground,
+        label,
+        border
+    ]);
+
+    diagnosisMenu.add(optionContainer);
+
+    // Store reference to the border for later updates
+    option.border = border;
+
+}
+
 function selectDiagnosis(columnId, diagnosisId) {
 
     if (typeof activeVisitor == 'undefined' || !activeVisitor.ready || isTransitioning) {
@@ -896,29 +921,38 @@ function selectDiagnosis(columnId, diagnosisId) {
 function updateDecideButton() {
 
     // Check whether at least one diagnosis exists
-    let hasDiagnosis = Object.values(
-        activeVisitor.userDiagnoses[0]
-    ).some(diagnosis => diagnosis !== null);
+    if (visitors.indexOf(activeVisitor) == visitorIndex) {
+        let hasDiagnosis = Object.values(
+            activeVisitor.userDiagnoses[0]
+        ).some(diagnosis => diagnosis !== null);
 
-    decideButton.setVisible(hasDiagnosis);
+        decideButton.setVisible(hasDiagnosis);
+    }
+    else {
+        decideButton.setVisible(false);
+    }
 
 }
 
 function updateDiagnosisBorders() {
 
     diagnosisButtons.forEach(button => {
+        if (visitors.indexOf(activeVisitor) == visitorIndex) {
+            let selectedDiagnosis =
+                activeVisitor.userDiagnoses[0][button.columnId];
 
-        let selectedDiagnosis =
-            activeVisitor.userDiagnoses[0][button.columnId];
+            if (selectedDiagnosis === button.diagnosisId) {
 
-        if (selectedDiagnosis === button.diagnosisId) {
+                button.border.setVisible(true);
 
-            button.border.setVisible(true);
+            } else {
 
-        } else {
+                button.border.setVisible(false);
 
+            }
+        }
+        else {
             button.border.setVisible(false);
-
         }
 
     });
@@ -969,9 +1003,14 @@ function update() {
             if (visitors.indexOf(visitor) == visitorIndex && !visitor.isActive) {
                 visitor.activate();
                 activeVisitor = visitor;
+                for (let diagnoses of activeVisitor.userDiagnoses) {
+                    Object.keys(diagnoses).forEach(key => {
+                        diagnoses[key] = null;
+                    });;
+                }
                 activeVisitor.bobbing();
                 activeVisitor.moveTo(visitorTargetPosX);
-                console.log(activeVisitor.sprite.x)
+
             }
         }
     }

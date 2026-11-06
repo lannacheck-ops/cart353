@@ -59,6 +59,11 @@ function preload() {
     /**
      * MENU ICONS
      */
+    // TABS
+    this.load.image("thermometer", "./assets/diagnosisIcons/tabs/thermometer.png");
+    this.load.image("brain", "./assets/diagnosisIcons/tabs/brain.png");
+    this.load.image("hands", "./assets/diagnosisIcons/tabs/hands.png");
+
     // TEMPERATURE
     this.load.image("heatStroke", "./assets/diagnosisIcons/temperature/heat_stroke.png");
     this.load.image("freezing", "./assets/diagnosisIcons/temperature/freezing.png");
@@ -104,7 +109,10 @@ let diagnosisButtons = [];
 const diagnosisOptions = [
     // TEMPERATURE
     {
-        temperature: [
+        id: "temperature",
+        title: "Temperature",
+        icon: "thermometer",
+        columns: [
             {
                 id: "highTemperature",
                 title: "High Temperature Reactions",
@@ -178,7 +186,10 @@ const diagnosisOptions = [
     },
     // MEMORY
     {
-        memory: [
+        id: "memory",
+        title: "Memory",
+        icon: "brain",
+        columns: [
             {
                 id: "easyMemory",
                 title: "< 5bpm Reactions",
@@ -190,12 +201,12 @@ const diagnosisOptions = [
                         image: "fullAccuracy"
                     },
                     {
-                        id: "fullAccuracy",
+                        id: "fullAccuracy2",
                         label: "100% Accuracy",
                         image: "fullAccuracy"
                     },
                     {
-                        id: "fullAccuracy",
+                        id: "fullAccuracy3",
                         label: "100% Accuracy",
                         image: "fullAccuracy"
                     },
@@ -218,12 +229,12 @@ const diagnosisOptions = [
                         image: "mediumAccuracy"
                     },
                     {
-                        id: "fullAccuracy",
+                        id: "fullAccuracy2",
                         label: "100% Accuracy",
                         image: "fullAccuracy"
                     },
                     {
-                        id: "fullAccuracy",
+                        id: "fullAccuracy3",
                         label: "100% Accuracy",
                         image: "fullAccuracy"
                     }
@@ -256,7 +267,10 @@ const diagnosisOptions = [
     },
     // SHAKE
     {
-        shake: [
+        id: "shake",
+        title: "Shake",
+        icon: "hands",
+        columns: [
             {
                 id: "hardShake",
                 title: "Hard Shake Reactions",
@@ -336,6 +350,10 @@ const diagnosisOptions = [
 ];
 let diagnosisMenu;
 let menuOpen = false;
+let currentCategory = "temperature";
+let diagnosisGrid;
+
+
 let decideButton;
 let decisionMenu;
 let decideMenuOpen = false;
@@ -457,7 +475,9 @@ function create() {
     visitorText = this.add.text(this.scale.width / 1.5, this.scale.height / 3, 'Hello', { fontSize: '32px', fill: '#ffffff' });
 
     // MENU
-    createDiagnosisMenu.call(this);
+    createDiagnosisMenu.call(this)
+    // TABS
+    createDiagnosisTabs.call(this);
     // DECIDE BUTTON
     createDecideButton.call(this);
     // DECISION MENU
@@ -745,30 +765,28 @@ function changeactiveVisitor() {
  */
 function createDiagnosisMenu() {
 
-    const menuWidth = 850;
-    const menuHeight = 1080;
 
-    // Create container outside the right side of the screen
-    diagnosisMenu = this.add.container(this.scale.width, 0);
+    // Create the main menu container.
+    // It starts outside the screen on the right.
+    diagnosisMenu = this.add.container(1920, 0);
 
-    // Background
+    // Create the menu background
     let background = this.add.rectangle(
-        0,
-        0,
-        menuWidth,
-        menuHeight,
+        0, 0,
+        850, 1080,
         0x24202b
     );
 
     background.setOrigin(0, 0);
 
+    // Add background to the menu
     diagnosisMenu.add(background);
 
-    // Menu title
+
+    // Create the menu title
     let title = this.add.text(
-        30,
-        30,
-        "TRAITS MENU",
+        30, 30,
+        "DIAGNOSIS MENU",
         {
             fontSize: "48px",
             color: "#ffffff",
@@ -778,24 +796,109 @@ function createDiagnosisMenu() {
 
     diagnosisMenu.add(title);
 
-    // Create diagnosis columns
+
+    // Create a separate container for diagnosis options.
+    // This allows us to replace the options when switching tabs
+    // without destroying the background or category icons.
+    diagnosisGrid = this.add.container(0, 0);
+
+    diagnosisMenu.add(diagnosisGrid);
+
+
+    // Create the three category tabs
+    createDiagnosisTabs.call(this);
+
+
+    // Set Temperature as the default category
+    currentCategory = "temperature";
+
+    // Display the Temperature diagnosis options initially
     createDiagnosisColumns.call(this);
 
 }
+/**
+ * CREATE DIAGNOSIS MENU TABS
+ */
+function createDiagnosisTabs() {
+
+    const tabIcons = [
+        {
+            id: "temperature",
+            image: "thermometer"
+        },
+        {
+            id: "memory",
+            image: "brain"
+        },
+        {
+            id: "shake",
+            image: "hands"
+        }
+    ];
+
+    tabIcons.forEach((tab, index) => {
+
+        let x = 100 + index * 250;
+
+        let icon = this.add.image(
+            x,
+            130,
+            tab.image
+        );
+
+        icon.setDisplaySize(80, 80);
+
+        icon.setInteractive({
+            useHandCursor: true
+        });
+
+        icon.on("pointerdown", () => {
+
+            switchDiagnosisMenu.call(this, tab.id);
+
+        });
+
+        diagnosisMenu.add(icon);
+
+    });
+
+}
+
+function switchDiagnosisMenu(categoryId) {
+
+    currentCategory = categoryId;
+
+    createDiagnosisColumns.call(this);
+
+}
+
 /**
  * CREATE DIAGNOSIS COLUMNS
  */
 function createDiagnosisColumns() {
 
-    const columnWidth = 250;
-    const startX = 30;
-    const startY = 150;
+    // Get the currently selected category
+    let category = diagnosisOptions.find(
+        item => item.id === currentCategory
+    );
 
-    diagnosisOptions[0]['temperature'].forEach((column, columnIndex) => {
+    // Clear the previous diagnosis buttons
+    diagnosisGrid.removeAll(true);
 
+    // Reset the button references
+    diagnosisButtons = [];
+
+    // Loop through the columns belonging to this category
+    category.columns.forEach((column, columnIndex) => {
+
+        const columnWidth = 250;
+        const startX = 30;
+        const startY = 250;
+
+        // Calculate horizontal position
         const columnX = startX + columnIndex * 270;
-        console.log(column);
-        // Column heading
+
+        // Create column heading
         let heading = this.add.text(
             columnX,
             startY,
@@ -803,18 +906,18 @@ function createDiagnosisColumns() {
             {
                 fontSize: "18px",
                 color: "#ffffff",
-                align: "center",
                 wordWrap: {
                     width: columnWidth
                 }
             }
-        ).setOrigin(-0.1, 0);
+        ).setOrigin(0, 0);
 
-        diagnosisMenu.add(heading);
+        diagnosisGrid.add(heading);
 
+        // Loop through the diagnosis options in this column
         column.options.forEach((option, optionIndex) => {
 
-            const optionY = startY + 100 + optionIndex * 190;
+            const optionY = startY + 80 + optionIndex * 190;
 
             createDiagnosisOption.call(
                 this,
@@ -827,6 +930,9 @@ function createDiagnosisColumns() {
         });
 
     });
+
+    // Restore the active player's selections
+    updateDiagnosisBorders.call(this);
 
 }
 
@@ -872,9 +978,15 @@ function createDiagnosisOption(column, option, x, y) {
     border.setVisible(false);
 
     diagnosisButtons.push({
+
+        categoryId: currentCategory,
+
         columnId: column.id,
+
         diagnosisId: option.id,
+
         border: border
+
     });
 
     // Make the image interactive
@@ -882,9 +994,15 @@ function createDiagnosisOption(column, option, x, y) {
         useHandCursor: true
     });
 
+
+    // CALL SELECT DIAGNOSIS
     image.on("pointerdown", () => {
 
-        selectDiagnosis(column.id, option.id);
+        selectDiagnosis.call(
+            this,
+            column.id,
+            option.id
+        );
 
     });
 
@@ -895,7 +1013,7 @@ function createDiagnosisOption(column, option, x, y) {
         border
     ]);
 
-    diagnosisMenu.add(optionContainer);
+    diagnosisGrid.add(optionContainer);
 
     // Store reference to the border for later updates
     option.border = border;
@@ -908,10 +1026,12 @@ function selectDiagnosis(columnId, diagnosisId) {
         return;
     }
 
-    // Store the selected diagnosis for the active player
-    activeVisitor.userDiagnoses[0][columnId] = diagnosisId;
+    if (!activeVisitor || isTransitioning) {
+        return;
+    }
 
-    // Update the selection borders
+    activeVisitor.userDiagnoses[currentCategory][columnId] = diagnosisId;
+
     updateDiagnosisBorders.call(this);
 
     updateDecideButton();
@@ -920,36 +1040,51 @@ function selectDiagnosis(columnId, diagnosisId) {
 
 function updateDecideButton() {
 
-    // Check whether at least one diagnosis exists
-    if (visitors.indexOf(activeVisitor) == visitorIndex) {
-        let hasDiagnosis = Object.values(
-            activeVisitor.userDiagnoses[0]
-        ).some(diagnosis => diagnosis !== null);
-
-        decideButton.setVisible(hasDiagnosis);
-    }
-    else {
+    // If there is no active player, hide the button
+    if (visitors.indexOf(activeVisitor) !== visitorIndex) {
         decideButton.setVisible(false);
+        return;
     }
+
+    let hasDiagnosis = false;
+
+    // Loop through all diagnosis categories
+    for (let category in activeVisitor.userDiagnoses) {
+
+        // Loop through the diagnoses in each category
+        for (let diagnosis in activeVisitor.userDiagnoses[category]) {
+
+            // Check if at least one diagnosis has been selected
+            if (activeVisitor.userDiagnoses[category][diagnosis] !== null) {
+
+                hasDiagnosis = true;
+                break;
+
+            }
+        }
+
+        // No need to check other categories if one was found
+        if (hasDiagnosis) {
+            break;
+        }
+    }
+
+    // Show or hide the DECIDE button
+    decideButton.setVisible(hasDiagnosis);
 
 }
+
 
 function updateDiagnosisBorders() {
 
     diagnosisButtons.forEach(button => {
         if (visitors.indexOf(activeVisitor) == visitorIndex) {
             let selectedDiagnosis =
-                activeVisitor.userDiagnoses[0][button.columnId];
+                activeVisitor.userDiagnoses[button.categoryId][button.columnId];
 
-            if (selectedDiagnosis === button.diagnosisId) {
-
-                button.border.setVisible(true);
-
-            } else {
-
-                button.border.setVisible(false);
-
-            }
+            button.border.setVisible(
+                selectedDiagnosis === button.diagnosisId
+            );
         }
         else {
             button.border.setVisible(false);
@@ -1003,13 +1138,23 @@ function update() {
             if (visitors.indexOf(visitor) == visitorIndex && !visitor.isActive) {
                 visitor.activate();
                 activeVisitor = visitor;
-                for (let diagnoses of activeVisitor.userDiagnoses) {
-                    Object.keys(diagnoses).forEach(key => {
-                        diagnoses[key] = null;
-                    });;
+                // for (let diagnoses of activeVisitor.userDiagnoses) {
+                //     Object.keys(diagnoses).forEach(key => {
+                //         diagnoses[key] = null;
+                //     });;
+                // }
+                for (let category in activeVisitor.userDiagnoses) {
+
+                    for (let diagnosis in activeVisitor.userDiagnoses[category]) {
+
+                        activeVisitor.userDiagnoses[category][diagnosis] = null;
+
+                    }
+
                 }
                 activeVisitor.bobbing();
                 activeVisitor.moveTo(visitorTargetPosX);
+                console.log(activeVisitor.userDiagnoses);
 
             }
         }

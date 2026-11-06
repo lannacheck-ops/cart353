@@ -23,23 +23,27 @@ export class Visitor {
         this.movementTween = null;
 
         // Store this character's diagnoses
-        this.userDiagnoses = [
-            {
+        this.userDiagnoses = {
+
+            temperature: {
                 highTemperature: null,
                 lowTemperature: null,
                 normalTemperature: null
             },
-            {
+
+            memory: {
                 easyMemory: null,
                 mediumMemory: null,
                 hardMemory: null
             },
-            {
+
+            shake: {
                 hardShake: null,
                 mediumShake: null,
                 lightShake: null
             }
-        ];
+
+        };
     }
     //
     activate() {

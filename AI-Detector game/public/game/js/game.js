@@ -1,9 +1,9 @@
 import { Visitor } from './visitor.js'
 import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.5.3/+esm";
 
-let socialMediaData = [];
 let fakeUsersData = [];
 let realUsersData = [];
+let socialMediaUserData = []
 
 const socket = io();
 
@@ -55,6 +55,7 @@ function preload() {
     this.load.text("socialMediaData", "./data/SocialMediaUsersDataset.csv");
     this.load.text("fakeUserData", "./data/fake_socialmedia_account_detection_data/fake_users.csv");
     this.load.text("realUserData", "./data/fake_socialmedia_account_detection_data/real_users.csv");
+    this.load.text("socialMediaUserData", "./data/fake_socialmedia_account_detection_data/fake_social_media.csv");
 
     /**
      * MENU ICONS
@@ -368,41 +369,25 @@ function create() {
 
     // CREATE BACK SCENE
     this.add.image(this.scale.width / 2, this.scale.height / 2, 'window').setScale(0.8);
-    visitorLimit = 5;
-
-    visitorTargetPosX = this.scale.width / 2;
 
     // CONVERT SOCIAL MEDIA DATASET TO JSON
-    let socialMediacsvText = this.cache.text.get("socialMediaData");
-    let socialMediaresult = Papa.parse(socialMediacsvText, {
-        header: true,
-        skipEmptyLines: true,
-        dynamicTyping: true
-    });
-    socialMediaData = socialMediaresult.data;
-
+    socialMediaUserData = convertCSVToJSON.call(this, "socialMediaUserData")
     // CONVERT FAKE ACCOUNT DETECTION DATASET TO JSON
-    let fakeUsercsvText = this.cache.text.get("fakeUserData");
-    let fakeUserresult = Papa.parse(fakeUsercsvText, {
-        header: true,
-        skipEmptyLines: true,
-        dynamicTyping: true
-    });
-    fakeUsersData = fakeUserresult.data;
+    fakeUsersData = convertCSVToJSON.call(this, "fakeUserData");
 
     // CONVERT REAL ACCOUNT DETECTION DATASET TO JSON
-    let realUsercsvText = this.cache.text.get("realUserData");
-    let realUserresult = Papa.parse(realUsercsvText, {
-        header: true,
-        skipEmptyLines: true,
-        dynamicTyping: true
-    });
-    realUsersData = realUserresult.data;
+    realUsersData = convertCSVToJSON.call(this, "realUserData");
+
+
     console.log(fakeUsersData);
     console.log(realUsersData);
+    console.log(socialMediaUserData);
     // console.log(socialMediaData[0].Name);
 
     let previousImage = [];
+    // SET VISITOR LIMIT FOR THE DAY
+    visitorLimit = 5;
+    visitorTargetPosX = this.scale.width / 2;
     // NUMBER OF AI VISITORS
     numOfAIVisitorsLimit = visitorLimit - 2;
     numOfAIVisitors = Math.floor(Math.random() * numOfAIVisitorsLimit) + 1;
@@ -483,6 +468,17 @@ function create() {
     // DECISION MENU
     createDecisionMenu.call(this);
 
+}
+
+// CONVERT CSV DATA TO JSON
+function convertCSVToJSON(csvFile) {
+    let csvText = this.cache.text.get(csvFile);
+    let result = Papa.parse(csvText, {
+        header: true,
+        skipEmptyLines: true,
+        dynamicTyping: true
+    });
+    return result.data;
 }
 
 function createDecideButton() {
@@ -665,7 +661,11 @@ function decideVisitorType(AiDiagnosis) {
     if (isTransitioning || typeof activeVisitor == 'undefined') return;
     // toggleDiagnosisMenu();
     isTransitioning = true;
-    toggleDiagnosisMenu.call(this);
+    // Close the menu if it is open
+    if (menuOpen) {
+        toggleDiagnosisMenu.call(this);
+    }
+
     // Save the character's classification
     activeVisitor.AiDiagnosis = AiDiagnosis;
 
@@ -768,7 +768,7 @@ function createDiagnosisMenu() {
 
     // Create the main menu container.
     // It starts outside the screen on the right.
-    diagnosisMenu = this.add.container(1920, 0);
+    diagnosisMenu = this.add.container(2000, 0);
 
     // Create the menu background
     let background = this.add.rectangle(
@@ -838,7 +838,7 @@ function createDiagnosisTabs() {
 
     tabIcons.forEach((tab, index) => {
 
-        let x = 100 + index * 250;
+        let x = 140 + index * 275;
 
         let icon = this.add.image(
             x,

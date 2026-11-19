@@ -3,7 +3,8 @@ import Papa from "https://cdn.jsdelivr.net/npm/papaparse@5.5.3/+esm";
 
 let fakeUsersData = [];
 let realUsersData = [];
-let socialMediaUserData = []
+let fakeSocialMediaUserData = []
+let socialMediaUsersData = []
 
 const socket = io();
 
@@ -55,7 +56,8 @@ function preload() {
     this.load.text("socialMediaData", "./data/SocialMediaUsersDataset.csv");
     this.load.text("fakeUserData", "./data/fake_socialmedia_account_detection_data/fake_users.csv");
     this.load.text("realUserData", "./data/fake_socialmedia_account_detection_data/real_users.csv");
-    this.load.text("socialMediaUserData", "./data/fake_socialmedia_account_detection_data/fake_social_media.csv");
+    this.load.text("fakeSocialMediaUserData", "./data/fake_socialmedia_account_detection_data/fake_social_media.csv");
+    this.load.text("socialMediaUsersData", "./data/SocialMediaUsersDataset.csv");
 
     /**
      * MENU ICONS
@@ -86,6 +88,26 @@ function preload() {
 let visitors = [];
 let activeVisitor;
 let visitorImages = ['chester', 'asian', 'cocky', 'namu', 'old', 'redhead', 'moustache', 'steven'];
+let visitorImageAssets = {
+    Female: {
+        eyes: [],
+        eyebrows: [],
+        body: [],
+        hair: [],
+        head: [],
+        mouth: [],
+        nose: []
+    },
+    Male: {
+        eyes: [],
+        eyebrows: [],
+        body: [],
+        hair: [],
+        head: [],
+        mouth: [],
+        nose: []
+    }
+}
 let visitorIndex;
 let visitorLimit;
 let visitorText;
@@ -370,21 +392,24 @@ function create() {
     // CREATE BACK SCENE
     this.add.image(this.scale.width / 2, this.scale.height / 2, 'window').setScale(0.8);
 
-    // CONVERT SOCIAL MEDIA DATASET TO JSON
-    socialMediaUserData = convertCSVToJSON.call(this, "socialMediaUserData")
+    // CONVERT FAKE SOCIAL MEDIA DATASET TO JSON
+    fakeSocialMediaUserData = convertCSVToJSON.call(this, "fakeSocialMediaUserData")
+
     // CONVERT FAKE ACCOUNT DETECTION DATASET TO JSON
     fakeUsersData = convertCSVToJSON.call(this, "fakeUserData");
 
     // CONVERT REAL ACCOUNT DETECTION DATASET TO JSON
     realUsersData = convertCSVToJSON.call(this, "realUserData");
 
+    // CONVERT SOCIAL MEDIA ACCOUNTS DATASET TO JSON
+    socialMediaUsersData = convertCSVToJSON.call(this, "socialMediaUsersData");
 
     console.log(fakeUsersData);
     console.log(realUsersData);
-    console.log(socialMediaUserData);
-    // console.log(socialMediaData[0].Name);
+    console.log(fakeSocialMediaUserData);
+    console.log(socialMediaUsersData);
 
-    let previousImage = [];
+
     // SET VISITOR LIMIT FOR THE DAY
     visitorLimit = 5;
     visitorTargetPosX = this.scale.width / 2;
@@ -393,49 +418,13 @@ function create() {
     numOfAIVisitors = Math.floor(Math.random() * numOfAIVisitorsLimit) + 1;
 
     console.log(numOfAIVisitors)
+
     // CREATE VISITORS FOR THE DAY AND ADD THEM TO AN ARRAY
-    for (let i = 0; i < visitorLimit; i++) {
-        // SET A RANDOM IMAGE FOR EACH VISITOR
-        let randomImage = visitorImages[Math.floor(Math.random() * visitorImages.length)];
-        // MAKES SURE AN IMAGE DOESNT APPEAR TWICE AND EACH VISITOR IS A DIFFERENT IMAGE
-        if (typeof previousImage !== "undefined" && previousImage.includes(randomImage)) {
-            while (previousImage.includes(randomImage)) {
-                randomImage = visitorImages[Math.floor(Math.random() * visitorImages.length)];
-            }
-        }
-        // let randomName = socialMediaData[Math.floor(Math.random() * socialMediaData.length)].Name;
-        let randomName = realUsersData[Math.floor(Math.random() * realUsersData.length)].name;
-        while (randomName == null) {
-            randomName = realUsersData[Math.floor(Math.random() * realUsersData.length)].name;
-        }
-        visitors.push(new Visitor(this, randomName, randomImage, 0, this.scale.height / 1.5));
-        previousImage.push(randomImage);
-        // console.log(visitors[i].name);
-    }
+    createVisitors.call(this);
 
 
     // SET WHICH VISITORS ARE AI
-    let aiVisitors = [];
-
-    for (let i = 0; i < numOfAIVisitors; i++) {
-        // INITIALLY SET A RANDOM INDEX OF AN AI VISITOR
-        let randomAiVisitor = visitors[Math.floor(Math.random() * visitors.length)];
-        // IF THAT INDEX IS ALREADY AN AI CHOOSE ANOTHER RANDOM INDEX
-        while (randomAiVisitor.isAi == true) {
-            randomAiVisitor = visitors[Math.floor(Math.random() * visitors.length)];
-        }
-        // GIVE EACH AI VISITOR A RANDOM NAME FROM THE FAKE USER DATABASE
-        let randomName = fakeUsersData[Math.floor(Math.random() * fakeUsersData.length)].name;
-        // SOME VALUES OF THE NAMES ARE NULL SO MAKE SURE EVERYONE HAS A NAME
-        while (randomName == null) {
-            randomName = fakeUsersData[Math.floor(Math.random() * fakeUsersData.length)].name;
-        }
-        randomAiVisitor.isAi = true;
-        randomAiVisitor.name = randomName;
-        aiVisitors.push(randomAiVisitor);
-    }
-
-
+    assignAIVisitors();
 
     console.log(visitors);
     // WHAT VISITOR NUMBER ARE WE AT
@@ -469,7 +458,55 @@ function create() {
     createDecisionMenu.call(this);
 
 }
+// CREATE THE NUMBER OF VISITORS FOR THE DAY AND ADD THEM TO AN ARRAY
+function createVisitors() {
+    let previousSocialMediaData = []
+    let previousImage = [];
+    for (let i = 0; i < visitorLimit; i++) {
+        // SET A RANDOM IMAGE FOR EACH VISITOR
+        let randomImage = visitorImages[Math.floor(Math.random() * visitorImages.length)];
+        // MAKES SURE AN IMAGE DOESNT APPEAR TWICE AND EACH VISITOR IS A DIFFERENT IMAGE
+        if (typeof previousImage !== "undefined" && previousImage.includes(randomImage)) {
+            while (previousImage.includes(randomImage)) {
+                randomImage = visitorImages[Math.floor(Math.random() * visitorImages.length)];
+            }
+        }
+        // let randomName = socialMediaData[Math.floor(Math.random() * socialMediaData.length)].Name;
+        let randomUserData = socialMediaUsersData[Math.floor(Math.random() * socialMediaUsersData.length)];
+        generateVisitorImage.call(this, randomUserData.Gender);
 
+        while (previousSocialMediaData.includes(randomUserData)) {
+            randomUserData = socialMediaUsersData[Math.floor(Math.random() * socialMediaUsersData.length)];
+        }
+        // PUSH NEW VISITOR CLASS TO VISITOR ARRAY
+        visitors.push(new Visitor(this, randomUserData, randomImage, 0, this.scale.height / 1.5));
+        previousImage.push(randomImage);
+        previousSocialMediaData.push(randomUserData);
+        // console.log(visitors[i].name);
+    }
+}
+
+// RANDOMIZE CHARACTER APPEARANCE BASED ON GENDER
+function generateVisitorImage(gender) {
+
+}
+
+// ASSIGN WHICH VISITORS ARE AI
+function assignAIVisitors() {
+    let aiVisitors = [];
+    // REPEAT THE LOOP FOR THE SET AMT OF AI VISITORS FOR THE DAY
+    for (let i = 0; i < numOfAIVisitors; i++) {
+        // INITIALLY SET A RANDOM INDEX OF AN AI VISITOR
+        let randomAiVisitor = visitors[Math.floor(Math.random() * visitors.length)];
+        // IF THAT INDEX IS ALREADY AN AI CHOOSE ANOTHER RANDOM INDEX
+        while (randomAiVisitor.isAi == true) {
+            randomAiVisitor = visitors[Math.floor(Math.random() * visitors.length)];
+        }
+        randomAiVisitor.isAi = true;
+        aiVisitors.push(randomAiVisitor);
+    }
+
+}
 // CONVERT CSV DATA TO JSON
 function convertCSVToJSON(csvFile) {
     let csvText = this.cache.text.get(csvFile);
@@ -1138,11 +1175,7 @@ function update() {
             if (visitors.indexOf(visitor) == visitorIndex && !visitor.isActive) {
                 visitor.activate();
                 activeVisitor = visitor;
-                // for (let diagnoses of activeVisitor.userDiagnoses) {
-                //     Object.keys(diagnoses).forEach(key => {
-                //         diagnoses[key] = null;
-                //     });;
-                // }
+
                 for (let category in activeVisitor.userDiagnoses) {
 
                     for (let diagnosis in activeVisitor.userDiagnoses[category]) {
@@ -1157,6 +1190,7 @@ function update() {
                 console.log(activeVisitor.userDiagnoses);
 
             }
+            break
         }
     }
     if (typeof activeVisitor !== 'undefined' && activeVisitor.sprite.x >= visitorTargetPosX && !activeVisitor.ready) {
@@ -1184,12 +1218,11 @@ function temperatureReaction() {
     // Apply the tint
     if (typeof activeVisitor !== 'undefined') {
         if (activeVisitor.ready) {
-            activeVisitor.sprite.setTint(colour);
+            activeVisitor.image.setTint(colour);
         }
         else {
-            activeVisitor.sprite.setTint(0xffffff);
+            activeVisitor.image.setTint(0xffffff);
         }
     }
-
 
 }

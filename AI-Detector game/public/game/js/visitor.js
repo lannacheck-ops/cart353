@@ -1,18 +1,26 @@
 export class Visitor {
 
-    constructor(scene, name, image, x, y) {
+    constructor(scene, userData, image, x, y) {
 
         this.scene = scene;
-        this.name = name;
-        this.image = image;
+        this.name = userData.Name;
 
         this.initialX = x;
         this.initialY = y;
-        this.sprite = scene.add.image(x, y, image);
+
+        this.sprite = scene.add.container(x, y);
+        this.image = scene.add.image(0, 0, image);
+        this.image.setOrigin(0.5, 1);
+        this.image.setTint(0xffffff);
+        this.sprite.add(this.image);
 
         this.sprite.setScale(0.45);
-        this.sprite.setOrigin(0.5, 1);
-        this.sprite.setTint(0xffffff);
+        // this.sprite.each((child) => {
+        //     if (child.setTint) {
+        //         child.setTint(0xff0000);
+        //     }
+        // });
+
 
         this.isActive = false;
         this.ready = false;

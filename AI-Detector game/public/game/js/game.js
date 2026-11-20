@@ -41,8 +41,94 @@ function preload() {
     this.load.image('namu', './assets/characters/Namu.webp');
     this.load.image('old', './assets/characters/OldMan.png');
     this.load.image('redhead', './assets/characters/RedHead.png');
-    this.load.image('moustache', './assets/characters/RedHeadMoustache.png');
+    this.load.image('mous', './assets/characters/RedHeadMoustache.png');
     this.load.image('steven', './assets/characters/Steven_Rudboys.webp');
+
+    /**
+     * BACK HAIR
+     */
+    this.load.image('bob', './assets/characters/back_hair/bob.png');
+    this.load.image('bun', './assets/characters/back_hair/bun.png');
+    this.load.image('fro', './assets/characters/back_hair/fro.png');
+    this.load.image('long_locs', './assets/characters/back_hair/long_locs.png');
+    this.load.image('long_wavy', './assets/characters/back_hair/long_wavy.png');
+    this.load.image('short_fro', './assets/characters/back_hair/short_fro.png');
+
+    /**
+     * BEARD
+     */
+    this.load.image('big_beard', './assets/characters/beard/big.png');
+    this.load.image('french_moustache', './assets/characters/beard/french_moustache.png');
+    this.load.image('goatee', './assets/characters/beard/goatee.png');
+    this.load.image('moustache_goatee', './assets/characters/beard/moustache_goatee.png');
+    this.load.image('moustache', './assets/characters/beard/moustache.png');
+
+    /**
+     * BODY
+     */
+    this.load.image('broad', './assets/characters/body/broad.png');
+    this.load.image('original', './assets/characters/body/default.png');
+    this.load.image('hourglass', './assets/characters/body/hourglass.png');
+
+    /**
+     * BROWS
+     */
+    this.load.image('angry', './assets/characters/brows/angry.png');
+    this.load.image('medium', './assets/characters/brows/default.png');
+    this.load.image('happy', './assets/characters/brows/happy.png');
+    this.load.image('dere', './assets/characters/brows/neutral.png');
+    this.load.image('thick', './assets/characters/brows/thick.png');
+
+    /**
+     * EYES
+     */
+    this.load.image('closed', './assets/characters/eyes/closed.png');
+    this.load.image('default', './assets/characters/eyes/default.png');
+    this.load.image('downturned', './assets/characters/eyes/downturned.png');
+    this.load.image('nerd', './assets/characters/eyes/nerd.png');
+    this.load.image('round', './assets/characters/eyes/round.png');
+    this.load.image('slanted', './assets/characters/eyes/slanted.png');
+    this.load.image('tired', './assets/characters/eyes/tired.png');
+
+    /**
+     * FRONT HAIR
+     */
+    this.load.image('bald', './assets/characters/front_hair/bald.png');
+    this.load.image('balding', './assets/characters/front_hair/balding.png');
+    this.load.image('bangs', './assets/characters/front_hair/bangs.png');
+    this.load.image('curly_bangs', './assets/characters/front_hair/curly_bangs.png');
+    this.load.image('finger_waves', './assets/characters/front_hair/finger_waves.png');
+    this.load.image('gel_back', './assets/characters/front_hair/gel_back.png');
+    this.load.image('low', './assets/characters/front_hair/low.png');
+    this.load.image('mohawk', './assets/characters/front_hair/mohawk.png');
+    this.load.image('side_part', './assets/characters/front_hair/side_part.png');
+    this.load.image('side_swoop', './assets/characters/front_hair/side_swoop.png');
+
+    /**
+     * HEAD
+     */
+    this.load.image('chad_head', './assets/characters/head/chad.png');
+    this.load.image('fat_head', './assets/characters/head/fat.png');
+    this.load.image('oval_head', './assets/characters/head/oval.png');
+    this.load.image('round_head', './assets/characters/head/round.png');
+
+    /**
+     * MOUTH
+     */
+    this.load.image('big_smile', './assets/characters/mouth/big_smile.png');
+    this.load.image('mid_lips', './assets/characters/mouth/default.png');
+    this.load.image('smile_lips', './assets/characters/mouth/smile.png');
+    this.load.image('thick_lips', './assets/characters/mouth/thick.png');
+    this.load.image('thin_lips', './assets/characters/mouth/thin.png');
+
+    /**
+     * NOSE
+     */
+    this.load.image('big_nose', './assets/characters/nose/big.png');
+    this.load.image('default_nose', './assets/characters/nose/default.png');
+    this.load.image('long_nose', './assets/characters/nose/long.png');
+    this.load.image('small_nose', './assets/characters/nose/small.png');
+
     /**
      * SCENE
      */
@@ -87,25 +173,27 @@ function preload() {
  */
 let visitors = [];
 let activeVisitor;
-let visitorImages = ['chester', 'asian', 'cocky', 'namu', 'old', 'redhead', 'moustache', 'steven'];
+let visitorImages = ['chester', 'asian', 'cocky', 'namu', 'old', 'redhead', 'mous', 'steven'];
 let visitorImageAssets = {
     Female: {
-        eyes: [],
-        eyebrows: [],
-        body: [],
-        hair: [],
-        head: [],
-        mouth: [],
-        nose: []
+        eyes: ['closed', 'default', 'downturned', 'nerd', 'round', 'slanted', 'tired'],
+        brows: ['angry', 'medium', 'happy', 'dere', 'thick'],
+        body: ['original', 'hourglass'],
+        back_hair: ['bob', 'bun', 'fro', 'long_locs', 'long_wavy', 'short_fro'],
+        front_hair: ['bangs', 'curly_bangs', 'finger_waves', 'side_swoop'],
+        head: ['fat_head', 'oval_head', 'round_head'],
+        mouth: ['big_smile', 'mid_lips', 'smile_lips', 'thick_lips', 'thin_lips'],
+        nose: ['big_nose', 'default_nose', 'long_nose', 'small_nose'],
     },
     Male: {
-        eyes: [],
-        eyebrows: [],
-        body: [],
-        hair: [],
-        head: [],
-        mouth: [],
-        nose: []
+        eyes: ['closed', 'default', 'downturned', 'nerd', 'round', 'slanted', 'tired'],
+        brows: ['angry', 'medium', 'happy', 'dere', 'thick'],
+        body: ['original', 'broad'],
+        hair: ['bald', 'balding', 'gel_back', 'low', 'mohawk', 'side_part'],
+        head: ['chad_head', 'fat_head', 'oval_head', 'round_head'],
+        mouth: ['big_smile', 'mid_lips', 'smile_lips', 'thick_lips', 'thin_lips'],
+        nose: ['big_nose', 'default_nose', 'long_nose', 'small_nose'],
+        beard: ['big_beard', 'french_moustache', 'goatee', 'moustache_goatee', 'moustache']
     }
 }
 let visitorIndex;
@@ -463,33 +551,33 @@ function createVisitors() {
     let previousSocialMediaData = []
     let previousImage = [];
     for (let i = 0; i < visitorLimit; i++) {
-        // SET A RANDOM IMAGE FOR EACH VISITOR
-        let randomImage = visitorImages[Math.floor(Math.random() * visitorImages.length)];
-        // MAKES SURE AN IMAGE DOESNT APPEAR TWICE AND EACH VISITOR IS A DIFFERENT IMAGE
-        if (typeof previousImage !== "undefined" && previousImage.includes(randomImage)) {
-            while (previousImage.includes(randomImage)) {
-                randomImage = visitorImages[Math.floor(Math.random() * visitorImages.length)];
-            }
-        }
-        // let randomName = socialMediaData[Math.floor(Math.random() * socialMediaData.length)].Name;
+        // // SET A RANDOM IMAGE FOR EACH VISITOR
+        // let randomImage = visitorImages[Math.floor(Math.random() * visitorImages.length)];
+        // // MAKES SURE AN IMAGE DOESNT APPEAR TWICE AND EACH VISITOR IS A DIFFERENT IMAGE
+        // if (typeof previousImage !== "undefined" && previousImage.includes(randomImage)) {
+        //     while (previousImage.includes(randomImage)) {
+        //         randomImage = visitorImages[Math.floor(Math.random() * visitorImages.length)];
+        //     }
+        // }
+        // // let randomName = socialMediaData[Math.floor(Math.random() * socialMediaData.length)].Name;
         let randomUserData = socialMediaUsersData[Math.floor(Math.random() * socialMediaUsersData.length)];
-        generateVisitorImage.call(this, randomUserData.Gender);
 
         while (previousSocialMediaData.includes(randomUserData)) {
             randomUserData = socialMediaUsersData[Math.floor(Math.random() * socialMediaUsersData.length)];
         }
+        let gender = randomUserData.Gender;
+        // SEND IMAGE ASSETS DATA BASED ON RANDOM USER DATA'S GENDER
+        let imageAssets = visitorImageAssets[gender]
+
         // PUSH NEW VISITOR CLASS TO VISITOR ARRAY
-        visitors.push(new Visitor(this, randomUserData, randomImage, 0, this.scale.height / 1.5));
-        previousImage.push(randomImage);
+        visitors.push(new Visitor(this, randomUserData, imageAssets, 0, this.scale.height / 1.5));
+        // previousImage.push(randomImage);
         previousSocialMediaData.push(randomUserData);
         // console.log(visitors[i].name);
     }
 }
 
-// RANDOMIZE CHARACTER APPEARANCE BASED ON GENDER
-function generateVisitorImage(gender) {
 
-}
 
 // ASSIGN WHICH VISITORS ARE AI
 function assignAIVisitors() {
@@ -1190,7 +1278,6 @@ function update() {
                 console.log(activeVisitor.userDiagnoses);
 
             }
-            break
         }
     }
     if (typeof activeVisitor !== 'undefined' && activeVisitor.sprite.x >= visitorTargetPosX && !activeVisitor.ready) {
@@ -1218,10 +1305,18 @@ function temperatureReaction() {
     // Apply the tint
     if (typeof activeVisitor !== 'undefined') {
         if (activeVisitor.ready) {
-            activeVisitor.image.setTint(colour);
+            activeVisitor.imageContainer.each((child) => {
+                if (child.setTint) {
+                    child.setTint(colour);
+                }
+            });;
         }
         else {
-            activeVisitor.image.setTint(0xffffff);
+            activeVisitor.imageContainer.each((child) => {
+                if (child.setTint) {
+                    child.setTint(0xffffff);
+                }
+            });
         }
     }
 
